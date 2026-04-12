@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON Ultra-Fixer | Pro Studio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
+        :root { --primary: #3b82f6; --bg-dark: #020617; --panel-bg: rgba(15, 23, 42, 0.6); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-dark); color: #f1f5f9; overflow: hidden; }
+        .mono { font-family: 'Fira Code', monospace; font-size: 13px; }
+        .glass { background: var(--panel-bg); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); }
+        .json-key { color: #7dd3fc; } .json-string { color: #fda4af; } .json-number { color: #bef264; } .json-boolean, .json-null { color: #7de7eb; }
+        
+        #editor-container { position: relative; flex: 1; }
+        #error-layer {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; padding: 24px; white-space: pre-wrap;
+            color: transparent; font-family: 'Fira Code', monospace; font-size: 13px;
+        }
+        .err-line { background: rgba(239, 68, 68, 0.4); border-bottom: 2px solid #ef4444; }
+        textarea { position: relative; z-index: 1; background: transparent !important; }
+        .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
+        .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
+    </style>
+</head>
+<body class="h-screen flex flex-col">
+
+    <header class="h-16 px-8 flex items-center justify-between glass z-50">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg"><i class="fa-solid fa-code text-white"></i></div>
+            <div>
+                <h1 class="text-sm font-black text-white">JSON <span class="text-blue-500">ULTRA-PRO</span></h1>
+                <p class="text-[9px] text-zinc-500 font-bold uppercase">Original Logic + Force Merge</p>
+            </div>
+        </div>
+        <div id="stats" class="px-4 py-1.5 bg-white/5 rounded-full text-[10px] font-mono border border-white/10 text-zinc-400">Total Items: <span id="obj-count" class="text-blue-400 font-bold">0</span></div>
+    </header>
+
+    <main class="flex-1 flex p-4 gap-4 overflow-hidden">
+        <div class="flex-1 flex flex-col glass rounded-2xl overflow-hidden border border-white/5">
+            <div class="px-6 py-3 border-b border-white/5 bg-white/5 flex justify-between items-center text-[10px] font-bold text-zinc-500 uppercase">
+                <span>Input Raw Data</span>
+                <div class="flex gap-3"><button onclick="pasteFromClipboard()" class="text-blue-400">PASTE</button><button onclick="clearAll()" class="text-red-400">CLEAR</button></div>
+            </div>
+            <div id="editor-container">
+                <div id="error-layer" class="custom-scroll"></div>
+                <textarea id="json-input" oninput="syncScroll()" onscroll="syncScroll()" spellcheck="false" class="w-full h-full p-6 mono outline-none resize-none text-zinc-400 focus:text-blue-50" placeholder="// Paste multiple JSON arrays or objects here..."></textarea>
+            </div>
+        </div>
+
+        <div class="flex flex-col gap-4 self-center">
+            <button onclick="processJSON('fix')" class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-xl hover:scale-110 active:scale-95 transition-all"><i class="fa-solid fa-wand-magic-sparkles text-lg"></i></button>
+            <button onclick="processJSON('merge')" title="Force Merge All into Single Array" class="w-12 h-12 bg-zinc-800 hover:bg-zinc-700 rounded-xl flex items-center justify-center text-blue-400 border border-blue-900/30 transition-all"><i class="fa-solid fa-layer-group"></i></button>
+            <button onclick="processJSON('minify')" class="w-12 h-12 bg-zinc-800 hover:bg-zinc-700 rounded-xl flex items-center justify-center text-zinc-400 transition-all"><i class="fa-solid fa-compress"></i></button>
+        </div>
+
+        <div class="flex-1 flex flex-col glass rounded-2xl overflow-hidden border border-white/5">
+            <div class="px-6 py-3 border-b border-white/5 bg-white/5 flex justify-between items-center text-[10px] font-bold text-zinc-500 uppercase">
+                <span>Sanitized Output</span>
+                <div class="flex gap-3"><button onclick="copyOutput()" id="copy-btn" class="text-blue-400">COPY</button><button onclick="downloadJSON()" class="text-emerald-400">DOWNLOAD</button></div>
+            </div>
+            <div class="flex-1 overflow-auto p-6 custom-scroll"><pre id="json-output" class="mono whitespace-pre"></pre></div>
+        </div>
+    </main>
+
+    <footer class="h-10 px-8 flex items-center justify-between glass text-[10px] font-bold text-zinc-500 uppercase">
+        <div class="flex gap-6"><span id="process-time">0ms</span><span id="error-log">Engine: Idle</span></div>
+        <div class="flex items-center gap-2"><div id="status-dot" class="w-2 h-2 rounded-full bg-emerald-500"></div> Status Ready</div>
+    </footer>
+
+
+    <script src="app.js"></script>
+</body>
+</html>
