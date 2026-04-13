@@ -3,11 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>JSON Ultra-Fixer | Pro Studio</title>
+    <title>JSON Formatter & Fixer Online Free | Merge, Shuffle, Validate JSON</title>
     <script src="https://cdn.tailwindcss.com"></script>
    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='25' fill='%232563eb'/%3E%3Cpath d='M35 35l-15 15 15 15M65 35l15 15-15 15' stroke='white' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M55 30l-10 40' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
+   <meta name="description" content="Free JSON formatter, fixer, validator and merge tool. Fix invalid JSON, shuffle arrays and beautify JSON instantly online.">
+
+<meta name="keywords" content="json formatter, json fixer, fix invalid json, json validator online, json merge tool, json shuffle tool">
+
+<meta name="robots" content="index, follow"> 
+   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "JSON Ultra Pro Tool",
+  "applicationCategory": "DeveloperTool",
+  "operatingSystem": "All",
+  "description": "Online JSON formatter, fixer, validator and merge tool.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "INR"
+  }
+}
+</script>
+
+<style>
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
         :root { --primary: #3b82f6; --bg-dark: #020617; --panel-bg: rgba(15, 23, 42, 0.6); }
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: var(--bg-dark); color: #f1f5f9; overflow: hidden; }
@@ -74,13 +96,36 @@ textarea#json-input {
     width: 100%;
 }
       
+
+
+
+
+
+
+body { 
+    font-family: 'Plus Jakarta Sans', sans-serif; 
+    background-color: var(--bg-dark); 
+    color: #f1f5f9; 
+    overflow-x: hidden; 
+    overflow-y: auto !important; /* Force scroll enable */
+    height: auto !important; 
+}
+
+/* Main container ki height desktop par fix rakho par scroll allow karo */
+main { 
+    flex: none; 
+    min-height: calc(100vh - 64px - 40px); /* Header aur Footer hata kar baaki space */
+}
+
+
         .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
          
         /* Mobile responsive fixes */
 @media (max-width: 768px) {
     body { overflow-y: auto !important; height: auto !important; }
-    main { flex-direction: column !important; overflow: visible !important; padding: 10px !important; }
+    main { height: auto !important; overflow: visible !important; }
+    .panel-box { height: 450px !important; } /* Mobile par box height fix */
     #editor-container, .flex-1 { min-height: 300px; height: 400px !important; }
     .self-center { flex-direction: row !important; width: 100%; justify-content: center; padding: 10px 0; }
     header { padding: 0 15px !important; }
@@ -90,17 +135,19 @@ textarea#json-input {
    
    </style>
 </head>
-<body class="h-screen flex flex-col">
+<body class="min-h-screen flex flex-col">
 
     <div id="copy-toast" style="position: fixed; bottom: 24px; right: 24px; background: #10b981; color: white; padding: 12px 24px; border-radius: 12px; font-size: 12px; font-weight: 800; transform: translateY(100px); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000; pointer-events: none;">
     <i class="fa-solid fa-circle-check mr-2"></i> COPIED!
 </div>
 
-    <header class="h-16 px-8 flex items-center justify-between glass z-50">
+    <header class="sticky top-0 h-16 px-8 flex items-center justify-between glass z-50">
         <div class="flex items-center gap-3">
             <div class="w-10 h-10 bg-blue-600 rounded-xl flex items-center justify-center shadow-lg"><i class="fa-solid fa-code text-white"></i></div>
             <div>
-                <h1 class="text-sm font-black text-white">JSON <span class="text-blue-500">ULTRA-PRO</span></h1>
+               <h1 class="text-sm font-black text-white">
+JSON Formatter & Fixer <span class="text-blue-500">Online Tool</span>
+</h1>
                 <p class="text-[9px] text-zinc-500 font-bold uppercase">Original Logic + Force Merge</p>
             </div>
         </div>
@@ -148,6 +195,34 @@ textarea#json-input {
             <div class="flex-1 overflow-auto p-6 custom-scroll"><pre id="json-output" class="mono whitespace-pre"></pre></div>
         </div>
     </main>
+
+
+    <div class="max-w-6xl mx-auto p-6 text-sm text-zinc-400 space-y-6 mt-10 mb-10 border-t border-white/5">
+  <h2 class="text-white text-xl font-bold">What is JSON Formatter?</h2>
+  <p class="leading-relaxed"> 
+    JSON formatter is a tool that converts raw JSON data into a readable format. 
+    This tool helps developers and students fix invalid JSON, validate syntax, 
+    and beautify JSON instantly.
+  </p>
+
+  <h2 class="text-white font-bold">Features of This Tool</h2>
+  <ul class="list-disc ml-5">
+    <li>Fix invalid JSON automatically</li>
+    <li>Merge multiple JSON objects</li>
+    <li>Shuffle JSON arrays</li>
+    <li>Minify JSON data</li>
+  </ul>
+
+  <h2 class="text-white font-bold">How to Use?</h2>
+  <p>
+    Paste your JSON data, click fix or merge button, and get instant output.
+  </p>
+</div>
+<div class="text-center text-xs text-zinc-500 space-x-4 pb-4">
+  <a href="/json-formatter">JSON Formatter</a>
+  <a href="/fix-json-error">Fix JSON Error</a>
+  <a href="/json-mixer">JSON Mixer</a>
+</div>
 
    <footer class="min-h-10 px-8 py-2 md:py-0 flex flex-col md:flex-row items-center justify-between glass text-[10px] font-bold text-zinc-500 uppercase gap-2 md:gap-0">
     <div class="flex gap-6 justify-center md:justify-start w-full md:w-1/3">
