@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>JSON Ultra-Fixer | Pro Studio</title>
     <script src="https://cdn.tailwindcss.com"></script>
+   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='25' fill='%232563eb'/%3E%3Cpath d='M35 35l-15 15 15 15M65 35l15 15-15 15' stroke='white' stroke-width='8' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M55 30l-10 40' stroke='white' stroke-width='8' stroke-linecap='round'/%3E%3C/svg%3E">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500&family=Plus+Jakarta+Sans:wght@300;400;600;800&display=swap');
@@ -14,19 +15,86 @@
         .glass { background: var(--panel-bg); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.05); }
         .json-key { color: #7dd3fc; } .json-string { color: #fda4af; } .json-number { color: #bef264; } .json-boolean, .json-null { color: #7de7eb; }
         
-        #editor-container { position: relative; flex: 1; }
-        #error-layer {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none; padding: 24px; white-space: pre-wrap;
-            color: transparent; font-family: 'Fira Code', monospace; font-size: 13px;
-        }
-        .err-line { background: rgba(239, 68, 68, 0.4); border-bottom: 2px solid #ef4444; }
-        textarea { position: relative; z-index: 1; background: transparent !important; }
+        #copy-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    background: #10b981; /* Emerald Green */
+    color: white;
+    padding: 12px 24px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    box-shadow: 0 10px 25px -5px rgba(16, 185, 129, 0.4);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    z-index: 1000;
+}
+#copy-toast.show {
+    transform: translateY(0);
+    opacity: 1;
+}
+       #editor-container { 
+    position: relative; 
+    flex: 1; 
+    background: transparent;
+    overflow: hidden; 
+}
+
+#error-layer {
+    position: absolute; 
+    top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none; 
+    padding: 24px; /* Textarea ki padding ke barabar */
+    white-space: pre-wrap;
+    word-wrap: break-word;
+    color: transparent; 
+    font-family: 'Fira Code', monospace; 
+    font-size: 13px;
+    line-height: 1.5; /* Line height fix karein */
+    z-index: 1;
+}
+
+textarea#json-input {
+    position: relative;
+    z-index: 2;
+    background: transparent !important;
+    line-height: 1.5;
+    padding: 24px;
+    width: 100%;
+    height: 100%;
+}
+
+.err-line { 
+    background: rgba(239, 68, 68, 0.2); 
+    border-bottom: 2px solid #ef4444;
+    display: inline-block;
+    width: 100%;
+}
+      
         .custom-scroll::-webkit-scrollbar { width: 5px; height: 5px; }
         .custom-scroll::-webkit-scrollbar-thumb { background: #334155; border-radius: 10px; }
-    </style>
+         
+        /* Mobile responsive fixes */
+@media (max-width: 768px) {
+    body { overflow-y: auto !important; height: auto !important; }
+    main { flex-direction: column !important; overflow: visible !important; padding: 10px !important; }
+    #editor-container, .flex-1 { min-height: 300px; height: 400px !important; }
+    .self-center { flex-direction: row !important; width: 100%; justify-content: center; padding: 10px 0; }
+    header { padding: 0 15px !important; }
+}
+   
+   
+   
+   </style>
 </head>
 <body class="h-screen flex flex-col">
+
+    <div id="copy-toast" style="position: fixed; bottom: 24px; right: 24px; background: #10b981; color: white; padding: 12px 24px; border-radius: 12px; font-size: 12px; font-weight: 800; transform: translateY(100px); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 1000; pointer-events: none;">
+    <i class="fa-solid fa-circle-check mr-2"></i> COPIED!
+</div>
 
     <header class="h-16 px-8 flex items-center justify-between glass z-50">
         <div class="flex items-center gap-3">
@@ -39,11 +107,18 @@
         <div id="stats" class="px-4 py-1.5 bg-white/5 rounded-full text-[10px] font-mono border border-white/10 text-zinc-400">Total Items: <span id="obj-count" class="text-blue-400 font-bold">0</span></div>
     </header>
 
-    <main class="flex-1 flex p-4 gap-4 overflow-hidden">
+    <main class="flex-1 flex flex-col md:flex-row p-4 gap-4 overflow-hidden">
         <div class="flex-1 flex flex-col glass rounded-2xl overflow-hidden border border-white/5">
             <div class="px-6 py-3 border-b border-white/5 bg-white/5 flex justify-between items-center text-[10px] font-bold text-zinc-500 uppercase">
                 <span>Input Raw Data</span>
-                <div class="flex gap-3"><button onclick="pasteFromClipboard()" class="text-blue-400">PASTE</button><button onclick="clearAll()" class="text-red-400">CLEAR</button></div>
+              <div class="flex gap-3">
+    <button onclick="pasteFromClipboard()" class="text-blue-400 flex items-center gap-1">
+        <i class="fa-solid fa-paste"></i> PASTE
+    </button>
+    <button onclick="clearAll()" class="text-red-400 flex items-center gap-1">
+        <i class="fa-solid fa-trash-can"></i> CLEAR
+    </button>
+</div>
             </div>
             <div id="editor-container">
                 <div id="error-layer" class="custom-scroll"></div>
@@ -51,16 +126,24 @@
             </div>
         </div>
 
-        <div class="flex flex-col gap-4 self-center">
+        <div class="flex flex-row md:flex-col gap-4 self-center bg-white/5 md:bg-transparent p-3 md:p-0 rounded-2xl border border-white/5 md:border-0">
             <button onclick="processJSON('fix')" class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-xl hover:scale-110 active:scale-95 transition-all"><i class="fa-solid fa-wand-magic-sparkles text-lg"></i></button>
             <button onclick="processJSON('merge')" title="Force Merge All into Single Array" class="w-12 h-12 bg-zinc-800 hover:bg-zinc-700 rounded-xl flex items-center justify-center text-blue-400 border border-blue-900/30 transition-all"><i class="fa-solid fa-layer-group"></i></button>
+            <button onclick="processJSON('shuffle')" title="Shuffle Objects Randomly" class="w-12 h-12 bg-zinc-800 hover:bg-zinc-700 rounded-xl flex items-center justify-center text-amber-400 border border-amber-900/30 transition-all"><i class="fa-solid fa-shuffle"></i></button>
             <button onclick="processJSON('minify')" class="w-12 h-12 bg-zinc-800 hover:bg-zinc-700 rounded-xl flex items-center justify-center text-zinc-400 transition-all"><i class="fa-solid fa-compress"></i></button>
         </div>
 
-        <div class="flex-1 flex flex-col glass rounded-2xl overflow-hidden border border-white/5">
+        <div class="flex-1 flex flex-col glass rounded-2xl overflow-hidden border border-white/5 min-w-0">
             <div class="px-6 py-3 border-b border-white/5 bg-white/5 flex justify-between items-center text-[10px] font-bold text-zinc-500 uppercase">
                 <span>Sanitized Output</span>
-                <div class="flex gap-3"><button onclick="copyOutput()" id="copy-btn" class="text-blue-400">COPY</button><button onclick="downloadJSON()" class="text-emerald-400">DOWNLOAD</button></div>
+              <div class="flex gap-3">
+    <button onclick="copyOutput()" id="copy-btn" class="text-blue-400 flex items-center gap-1">
+        <i class="fa-solid fa-copy"></i> COPY
+    </button>
+    <button onclick="downloadJSON()" class="text-emerald-400 flex items-center gap-1">
+        <i class="fa-solid fa-download"></i> DOWNLOAD
+    </button>
+</div>
             </div>
             <div class="flex-1 overflow-auto p-6 custom-scroll"><pre id="json-output" class="mono whitespace-pre"></pre></div>
         </div>
@@ -70,8 +153,6 @@
         <div class="flex gap-6"><span id="process-time">0ms</span><span id="error-log">Engine: Idle</span></div>
         <div class="flex items-center gap-2"><div id="status-dot" class="w-2 h-2 rounded-full bg-emerald-500"></div> Status Ready</div>
     </footer>
-
-
     <script src="app.js"></script>
 </body>
 </html>
