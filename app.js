@@ -111,50 +111,46 @@ function shuffleArray(array) {
 
 // 2. Main Process Function
 async function processJSON(mode) {
-    const raw = inputArea.value; if (!raw) return;
+    const raw = inputArea.value; 
+    if (!raw) return;
     const startTime = performance.now();
     errorLayer.innerHTML = '';
     
     try {
-        let fixed = smartFix(raw);
         let data;
-
-        // Force wrap into array for parsing
-        let wrap = fixed;
-        if (!wrap.startsWith('[')) wrap = `[${wrap}]`;
         
-        try {
+        // Mode 'fix' hai tabhi smartFix chalega
+        if (mode === 'fix') {
+            let fixed = smartFix(raw);
+            let wrap = fixed.startsWith('[') ? fixed : `[${fixed}]`;
             data = JSON.parse(wrap);
-        } catch(e) {
-            let cleaner = fixed.replace(/^\[|\]$/g, '').replace(/\]\s*,?\s*\[/g, ',');
-            data = JSON.parse(`[${cleaner}]`);
-        }
-
-        // Flatten everything into a single list
-        data = data.flat(Infinity);
-
-        // --- SHUFFLE ACTION ---
-        if (mode === 'shuffle') {
-            data = shuffleArray([...data]); // Use spread to avoid reference issues
-        }
-
-        // Display results
-        if (mode === 'minify') {
-            outputArea.textContent = JSON.stringify(data);
+            // After fixing, output formatted JSON
+            outputArea.innerHTML = highlight(JSON.stringify(data.flat(Infinity), null, 4));
         } else {
-            outputArea.innerHTML = highlight(JSON.stringify(data, null, 4));
+            // MERGE ya SHUFFLE ke liye: Direct parse bina kisi modification ke
+            // User ka raw input hi parse hoga taaki LaTeX safe rahe
+            data = JSON.parse(raw); 
+            
+            if (mode === 'shuffle') {
+                data = shuffleArray([...data.flat(Infinity)]);
+            } else {
+                data = data.flat(Infinity);
+            }
+
+            if (mode === 'minify') {
+                outputArea.textContent = JSON.stringify(data);
+            } else {
+                // Highlighting use karein ya direct text as per requirement
+                outputArea.innerHTML = highlight(JSON.stringify(data, null, 4));
+            }
         }
 
-        document.getElementById('obj-count').textContent = data.length;
-        errorLog.textContent = "Engine: Success";
-        errorLog.className = "text-emerald-500";
-        document.getElementById('status-dot').className = "w-2 h-2 rounded-full bg-emerald-500";
+        document.getElementById('obj-count').textContent = Array.isArray(data) ? data.length : 1;
+        updateStatus("Success", "emerald");
 
     } catch (err) {
-        console.error(err); // Console check ke liye
-        errorLog.textContent = "Engine: Error";
-        errorLog.className = "text-red-400";
-        document.getElementById('status-dot').className = "w-2 h-2 rounded-full bg-red-500";
+        console.error("JSON Error:", err);
+        updateStatus("Error", "red");
         highlightErrorLine(err.message);
     } finally {
         document.getElementById('process-time').textContent = `${Math.round(performance.now() - startTime)}ms`;
