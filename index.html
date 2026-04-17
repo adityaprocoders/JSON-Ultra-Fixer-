@@ -116,9 +116,37 @@ main {
             #editor-container, .output-scroll-area { height: 400px; flex: none; }
             .btn-center-fix { flex-direction: row; width: 100%; padding: 10px 0; }
         }
+        
     </style>
 </head>
 <body>
+
+    <div id="divideModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px);">
+    <div style="background:#161b22; padding:25px; border-radius:20px; width:400px; border:1px solid #30363d;">
+        <h3 style="color:white; margin-bottom:20px;">Divide Settings</h3>
+        
+        <div style="display:flex; margin-bottom:20px; border-bottom:1px solid #333;">
+            <button onclick="switchMode('smart')" id="btnSmart" style="flex:1; padding:10px; color:white; border-bottom:2px solid #3b82f6;">Smart Mode</button>
+            <button onclick="switchMode('range')" id="btnRange" style="flex:1; padding:10px; color:#888;">ID Range</button>
+        </div>
+
+        <div id="smartInputs">
+            <label style="color:#888; font-size:12px;">TOTAL PARTS</label>
+            <input type="number" id="smartParts" value="3" style="width:100%; padding:10px; margin-bottom:15px; background:#0d1117; color:white; border:1px solid #333;">
+            <label style="color:#888; font-size:12px;">ITEMS PER PART (N-1)</label>
+            <input type="number" id="smartItems" value="4" style="width:100%; padding:10px; background:#0d1117; color:white; border:1px solid #333;">
+        </div>
+
+        <div id="rangeInputs" style="display:none;">
+            <input type="text" id="rangeKey" placeholder="ID Key (e.g. id)" style="width:100%; padding:10px; margin-bottom:10px; background:#0d1117; color:white;">
+            <input type="text" id="rangeStart" placeholder="From ID" style="width:48%; padding:10px; background:#0d1117; color:white;">
+            <input type="text" id="rangeEnd" placeholder="To ID" style="width:48%; padding:10px; background:#0d1117; color:white;">
+        </div>
+
+        <button onclick="executeDivideLogic()" style="width:100%; padding:15px; background:#2563eb; color:white; border-radius:10px; margin-top:20px; font-weight:bold;">DIVIDE NOW</button>
+        <button onclick="document.getElementById('divideModal').style.display='none'" style="width:100%; color:#888; margin-top:10px;">Cancel</button>
+    </div>
+</div>
 
     <div id="copy-toast"><i class="fa-solid fa-circle-check mr-2"></i> COPIED!</div>
 
@@ -152,6 +180,7 @@ main {
             <button onclick="processJSON('fix')" class="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-xl hover:scale-110 active:scale-95 transition-all"><i class="fa-solid fa-wand-magic-sparkles text-lg"></i></button>
             <button onclick="processJSON('merge')" title="Force Merge" class="w-12 h-12 bg-zinc-800 hover:bg-zinc-700 rounded-xl flex items-center justify-center text-blue-400 border border-blue-900/30 transition-all"><i class="fa-solid fa-layer-group"></i></button>
             <button onclick="processJSON('shuffle')" title="Shuffle Items" class="w-12 h-12 bg-zinc-800 hover:bg-zinc-700 rounded-xl flex items-center justify-center text-amber-400 border border-amber-900/30 transition-all"><i class="fa-solid fa-shuffle"></i></button>
+            <button onclick="openDivideModal()" class="btn-control w-12 h-12 bg-zinc-800 hover:bg-zinc-700 rounded-xl flex items-center justify-center text-green-600 border border-amber-900/30 transition-all" title="Divide JSON"><i class="fa-solid fa-columns"></i></button>
             <button onclick="processJSON('minify')" class="w-12 h-12 bg-zinc-800 hover:bg-zinc-700 rounded-xl flex items-center justify-center text-zinc-400 transition-all"><i class="fa-solid fa-compress"></i></button>
         </div>
 
