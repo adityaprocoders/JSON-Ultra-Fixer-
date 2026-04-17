@@ -127,9 +127,8 @@ async function processJSON(mode) {
             // After fixing, output formatted JSON
             outputArea.innerHTML = highlight(JSON.stringify(data.flat(Infinity), null, 4));
         } else {
-            // MERGE ya SHUFFLE ke liye: Direct parse bina kisi modification ke
-            // User ka raw input hi parse hoga taaki LaTeX safe rahe
-            data = JSON.parse(raw); 
+            let mergedRaw = raw.replace(/\]\s*\[/g, ',');
+            data = JSON.parse(mergedRaw);
             
             if (mode === 'shuffle') {
                 data = shuffleArray([...data.flat(Infinity)]);
