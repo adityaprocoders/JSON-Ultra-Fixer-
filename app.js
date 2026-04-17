@@ -184,3 +184,145 @@ async function processJSON(mode) {
             const blob = new Blob([outputArea.innerText], {type: 'application/json'});
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `merged_json_${Date.now()}.json`; a.click();
         }
+
+
+
+
+
+
+
+
+
+
+// --- MODAL CONTROLS ---
+let currentDivideMode = 'smart';
+
+function switchMode(mode) {
+    currentDivideMode = mode;
+    const isSmart = mode === 'smart';
+    document.getElementById('smartInputs').style.display = isSmart ? 'block' : 'none';
+    document.getElementById('rangeInputs').style.display = isSmart ? 'none' : 'block';
+    
+    // UI Visuals
+    document.getElementById('btnSmart').style.borderBottom = isSmart ? '2px solid #3b82f6' : 'none';
+    document.getElementById('btnRange').style.borderBottom = isSmart ? 'none' : '2px solid #3b82f6';
+}
+
+function openDivideModal() {
+    document.getElementById('divideModal').style.display = 'flex';
+}
+
+function closeDivideModal() {
+    document.getElementById('divideModal').style.display = 'none';
+}
+
+
+function smartDivideLogic(data, numParts, itemsPer) {
+    let parts = [];
+    let pointer = 0;
+    for (let i = 0; i < numParts; i++) {
+        if (pointer >= data.length) break;
+        let chunk;
+        if (i === numParts - 1) {
+            chunk = data.slice(pointer); // Last part gets remainder
+        } else {
+            chunk = data.slice(pointer, pointer + itemsPer); // N-1 parts fix
+        }
+        parts.push(chunk);
+        pointer += chunk.length;
+    }
+    return parts;
+}
+
+function renderDivideOutput(parts) {
+    const container = document.getElementById('json-output'); // Check kar lena ye ID sahi ho
+    container.innerHTML = '';
+    
+    // Grid Setup: Mobile(1), Tablet(2), Large Desktop(3)
+    container.className = "grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 p-4 animate-in fade-in duration-500";
+
+    parts.forEach((p, index) => {
+        const card = document.createElement('div');
+        // Glassmorphism classes + Shadow
+        card.className = "group relative flex flex-col bg-slate-900/40 backdrop-blur-md border border-white/10 rounded-2xl overflow-hidden hover:border-blue-500/50 transition-all duration-300 shadow-xl";
+        
+        card.innerHTML = `
+            <div class="sticky top-0 z-10 flex justify-between items-center px-4 py-3 bg-white/5 backdrop-blur-lg border-b border-white/5">
+                <div class="flex flex-col">
+                    <span class="text-[10px] uppercase tracking-widest text-zinc-500 font-black">Segment</span>
+                    <span class="text-blue-400 font-bold text-sm">PART ${index + 1} <span class="text-zinc-600 ml-1">(${p.length} Items)</span></span>
+                </div>
+                <button onclick="copyChunk(this)" class="flex items-center gap-2 px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white rounded-lg text-[11px] font-bold transition-all active:scale-95 shadow-lg shadow-blue-900/20">
+                    <i class="fa-solid fa-copy"></i> COPY
+                </button>
+            </div>
+
+            <div class="p-4 overflow-hidden">
+                <pre class="custom-scroll text-[12px] text-zinc-300 overflow-auto max-h-[350px] font-mono leading-relaxed">${highlight(JSON.stringify(p, null, 2))}</pre>
+            </div>
+
+            <div class="h-1 w-0 group-hover:w-full bg-blue-500 transition-all duration-500"></div>
+        `;
+        container.appendChild(card);
+    });
+}
+
+// Chunks copy karne ke liye helper function
+function copyChunk(btn) {
+    const text = btn.parentElement.nextElementSibling.innerText;
+    navigator.clipboard.writeText(text).then(() => {
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> COPIED!';
+        btn.classList.replace('text-blue-400', 'text-emerald-400');
+        setTimeout(() => {
+            btn.innerHTML = originalText;
+            btn.classList.replace('text-emerald-400', 'text-blue-400');
+        }, 1500);
+    });
+}
+
+async function executeDivideLogic() {
+    const raw = inputArea.value.trim();
+    if (!raw) return;
+
+    try {
+        // Sirf parse kar rahe hain divide karne ke liye, original data ko preserve rakhenge
+        let data = JSON.parse(raw); 
+        
+        // Ensure it's an array
+        if (!Array.isArray(data)) {
+            data = [data];
+        }
+
+        const numParts = parseInt(document.getElementById('smartParts').value) || 1;
+        const itemsPer = parseInt(document.getElementById('smartItems').value) || 1;
+        
+        let parts = [];
+        let pointer = 0;
+
+        for (let i = 0; i < numParts; i++) {
+            if (pointer >= data.length) break;
+            
+            let chunk;
+            if (i === numParts - 1) {
+                chunk = data.slice(pointer); // Bacha hua sara data
+            } else {
+                chunk = data.slice(pointer, pointer + itemsPer);
+            }
+            
+            if (chunk.length > 0) {
+                parts.push(chunk);
+                pointer += chunk.length;
+            }
+        }
+
+        renderDivideOutput(parts);
+        closeDivideModal();
+        updateStatus("Divided (Original Format)", "emerald");
+
+    } catch (err) {
+        // Agar JSON kharab hai toh error dikhayega, kuch fix nahi karega apne aap
+        updateStatus("Invalid JSON", "red");
+        alert("JSON format galat hai. Pehle Fix button use kar ya syntax sahi kar.");
+    }
+}
